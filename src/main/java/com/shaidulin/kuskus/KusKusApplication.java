@@ -1,15 +1,18 @@
 package com.shaidulin.kuskus;
 
-import org.apache.solr.client.solrj.SolrClient;
+import com.shaidulin.kuskus.converter.DurationReadingConverter;
+import com.shaidulin.kuskus.converter.PortionReadingConverter;
+import com.shaidulin.kuskus.document.Portion;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.solr.core.SolrOperations;
-import org.springframework.data.solr.core.SolrTemplate;
-import org.springframework.data.solr.repository.config.EnableSolrRepositories;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.elasticsearch.core.convert.ElasticsearchCustomConversions;
+
+import java.time.Duration;
+import java.util.List;
 
 @SpringBootApplication
-@EnableSolrRepositories("com.shaidulin.kuskus.repository")
 public class KusKusApplication {
 
     public static void main(String[] args) {
@@ -17,7 +20,19 @@ public class KusKusApplication {
     }
 
     @Bean
-    public SolrOperations solrTemplate(SolrClient solrClient) {
-        return new SolrTemplate(solrClient);
+    public ElasticsearchCustomConversions elasticsearchCustomConversions(
+            Converter<String, Duration> durationReadingConverter,
+            Converter<String, Portion> portionReadingConverter) {
+        return new ElasticsearchCustomConversions(List.of(durationReadingConverter, portionReadingConverter));
+    }
+
+    @Bean
+    public Converter<String, Duration> durationReadingConverter() {
+        return new DurationReadingConverter();
+    }
+
+    @Bean
+    public Converter<String, Portion> portionReadingConverter() {
+        return new PortionReadingConverter();
     }
 }

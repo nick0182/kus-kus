@@ -1,0 +1,26 @@
+{
+  "analysis": {
+    "char_filter": {
+      "dots": {
+        "type": "mapping",
+        "mappings": [
+          ". =>"
+        ]
+      }
+    },
+    "normalizer": {
+      "ingredients_name_keyword_normalizer": {
+        "type": "custom",
+        "filter": [
+          "lowercase"
+        ]
+      },
+      "ingredients_measurement_keyword_normalizer": {
+        "type": "custom",
+        "char_filter": [
+          "dots"
+        ]
+      }
+    }
+  }
+}
