@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-@Document(indexName = "receipt-test", createIndex = false)
+@Document(indexName = "receipt")
 @DynamicMapping(value = DynamicMappingValue.False)
 @Setting(settingPath = "index_settings.json")
 @Data
@@ -24,7 +24,7 @@ public class Receipt {
     @Field(type = FieldType.Text, index = false, norms = false)
     private final String description;
 
-    @Field(type = FieldType.Object)
+    @Field(type = FieldType.Nested)
     private final List<Ingredient> ingredients;
 
     @Field(name = "time-to-cook", type = FieldType.Keyword, ignoreAbove = 20, index = false)

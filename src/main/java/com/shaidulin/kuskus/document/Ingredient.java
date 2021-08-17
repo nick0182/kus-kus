@@ -9,8 +9,9 @@ import org.springframework.data.elasticsearch.annotations.*;
 public class Ingredient {
 
     @MultiField(
-            mainField = @Field(type = FieldType.Text, analyzer = "russian"),
+            mainField = @Field(type = FieldType.Text, index = false, norms = false),
             otherFields = {
+                    @InnerField(suffix = "search", type = FieldType.Search_As_You_Type),
                     @InnerField(
                             suffix = "keyword", type = FieldType.Keyword, ignoreAbove = 40,
                             normalizer = "ingredients_name_keyword_normalizer", index = false
