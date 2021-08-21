@@ -18,6 +18,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
@@ -29,23 +30,19 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     private final ReactiveElasticsearchClient client;
 
-    private static final String SEARCH_PLAIN = "ingredients.name.search";
-    private static final String SEARCH_2GRAM = "ingredients.name.search._2gram";
-    private static final String SEARCH_3GRAM = "ingredients.name.search._3gram";
+    private static final String SEARCH_PLAIN = "ingredients.name.search"; // splits phrase by word
+    private static final String SEARCH_2GRAM = "ingredients.name.search._2gram"; // splits phrase by 2 words
+    private static final String SEARCH_3GRAM = "ingredients.name.search._3gram"; // splits phrase by 3 words
 
     private static final String KEYWORD = "ingredients.name.keyword";
 
     @Override
     public Mono<IngredientMatch> searchIngredients(String toMatch) {
-        MultiMatchQueryBuilder multiMatchQuery = constructMultiMatchBuilder(toMatch);
-        FilterAggregationBuilder filterIngredientsAggregation = new FilterAggregationBuilder("filter_ingredients", multiMatchQuery);
-        TermsAggregationBuilder ingredientsListAggregation = new TermsAggregationBuilder("ingredients_list");
-        ingredientsListAggregation.field(KEYWORD);
-        NestedAggregationBuilder nestedAggregation = new NestedAggregationBuilder("ingredients", "ingredients");
-        nestedAggregation.subAggregations(
-                AggregatorFactories.builder()
-                        .addAggregator(filterIngredientsAggregation)
-                        .addAggregator(ingredientsListAggregation));
+        String toMatchTrimmed = toMatch.trim();
+        MultiMatchQueryBuilder multiMatchQuery = constructMultiMatchBuilder(toMatchTrimmed);
+        FilterAggregationBuilder filterIngredientsAggregation = constructFilterAggregationBuilder(multiMatchQuery);
+        TermsAggregationBuilder ingredientsListAggregation = constructTermsAggregationBuilder();
+        NestedAggregationBuilder nestedAggregation = packAggregations(ingredientsListAggregation, filterIngredientsAggregation);
         SearchRequest request = new SearchRequest().source(new SearchSourceBuilder().size(0).aggregation(nestedAggregation));
 
         return client.searchForResponse(request)
@@ -53,10 +50,34 @@ public class ReceiptServiceImpl implements ReceiptService {
                 .map(this::createSearchResponse);
     }
 
-    private MultiMatchQueryBuilder constructMultiMatchBuilder(String query) {
-        MultiMatchQueryBuilder multiMatchQueryBuilder = new MultiMatchQueryBuilder(query, SEARCH_PLAIN, SEARCH_2GRAM, SEARCH_3GRAM);
+    private MultiMatchQueryBuilder constructMultiMatchBuilder(String toMatchTrimmed) {
+        MultiMatchQueryBuilder multiMatchQueryBuilder;
+        boolean isSingleWord = !StringUtils.containsWhitespace(toMatchTrimmed);
+        if (isSingleWord) {
+            multiMatchQueryBuilder = new MultiMatchQueryBuilder(toMatchTrimmed, SEARCH_PLAIN, SEARCH_2GRAM, SEARCH_3GRAM);
+        } else {
+            multiMatchQueryBuilder = new MultiMatchQueryBuilder(toMatchTrimmed, SEARCH_2GRAM, SEARCH_3GRAM);
+        }
         multiMatchQueryBuilder.type(MultiMatchQueryBuilder.Type.BOOL_PREFIX);
         return multiMatchQueryBuilder;
+    }
+
+    private FilterAggregationBuilder constructFilterAggregationBuilder(MultiMatchQueryBuilder multiMatchQuery) {
+        return new FilterAggregationBuilder("filter_ingredients", multiMatchQuery);
+    }
+
+    private TermsAggregationBuilder constructTermsAggregationBuilder() {
+        TermsAggregationBuilder ingredientsListAggregation = new TermsAggregationBuilder("ingredients_list");
+        ingredientsListAggregation.field(KEYWORD);
+        return ingredientsListAggregation;
+    }
+
+    private NestedAggregationBuilder packAggregations(TermsAggregationBuilder ingredientsListAggregation,
+                                                      FilterAggregationBuilder filterIngredientsAggregation) {
+        filterIngredientsAggregation.subAggregations(AggregatorFactories.builder().addAggregator(ingredientsListAggregation));
+        NestedAggregationBuilder nestedAggregation = new NestedAggregationBuilder("ingredients", "ingredients");
+        nestedAggregation.subAggregations(AggregatorFactories.builder().addAggregator(filterIngredientsAggregation));
+        return nestedAggregation;
     }
 
     private <T extends Aggregation> Terms resolveAggregation(Aggregations parent, String name, Class<T> type) {
