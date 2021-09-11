@@ -49,7 +49,7 @@ public class ReceiptServiceTest {
     private ReceiptService receiptService;
 
     @BeforeAll
-    public void setupIndex() throws IOException {
+    public void setupIndex() throws IOException, InterruptedException {
         // given
         GetIndexRequest getIndexRequest = new GetIndexRequest(INDEX_NAME);
 
@@ -63,6 +63,8 @@ public class ReceiptServiceTest {
                 .verifyComplete();
 
         populateIndex();
+
+        Thread.sleep(1000);
     }
 
     private void populateIndex() throws IOException {
