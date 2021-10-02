@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 
 public class ReceiptControllerTest {
 
@@ -32,12 +32,12 @@ public class ReceiptControllerTest {
     void test1() {
         IngredientMatch expected = new IngredientMatch(Collections.emptySet());
         BDDMockito
-                .given(receiptService.searchIngredients(anyString()))
+                .given(receiptService.searchIngredients(anyString(), any()))
                 .willReturn(Mono.just(expected));
 
         webTestClient
                 .get()
-                .uri("/api/vi/ingredients/капуста")
+                .uri("/api/vi/ingredients?toSearch=капуста")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(IngredientMatch.class)
@@ -45,16 +45,50 @@ public class ReceiptControllerTest {
     }
 
     @Test
-    @DisplayName("should return a match")
+    @DisplayName("should return a match for 1 ingredient")
     void test2() {
         IngredientMatch expected = new IngredientMatch(Collections.singleton(new IngredientValue("шампиньоны", 50)));
         BDDMockito
-                .given(receiptService.searchIngredients(anyString()))
+                .given(receiptService.searchIngredients(anyString(), any()))
                 .willReturn(Mono.just(expected));
 
         webTestClient
                 .get()
-                .uri("/api/vi/ingredients/шампиньоны")
+                .uri("/api/vi/ingredients?toSearch=шампиньоны")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(IngredientMatch.class)
+                .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("should return a match for 2 ingredients")
+    void test3() {
+        IngredientMatch expected = new IngredientMatch(Collections.singleton(new IngredientValue("чеснок", 45)));
+        BDDMockito
+                .given(receiptService.searchIngredients(anyString(), notNull()))
+                .willReturn(Mono.just(expected));
+
+        webTestClient
+                .get()
+                .uri("/api/vi/ingredients?toSearch=шампиньоны&known=чеснок")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(IngredientMatch.class)
+                .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("should return a match for 3 ingredients")
+    void test4() {
+        IngredientMatch expected = new IngredientMatch(Collections.singleton(new IngredientValue("чеснок", 30)));
+        BDDMockito
+                .given(receiptService.searchIngredients(anyString(), notNull(), notNull()))
+                .willReturn(Mono.just(expected));
+
+        webTestClient
+                .get()
+                .uri("/api/vi/ingredients?toSearch=шампиньоны&known=чеснок,соль")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(IngredientMatch.class)

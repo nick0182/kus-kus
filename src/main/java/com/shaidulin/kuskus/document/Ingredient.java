@@ -14,7 +14,7 @@ public class Ingredient {
                     @InnerField(suffix = "search", type = FieldType.Search_As_You_Type),
                     @InnerField(
                             suffix = "keyword", type = FieldType.Keyword, ignoreAbove = 40,
-                            normalizer = "ingredients_name_keyword_normalizer", index = false
+                            normalizer = "ingredients_name_keyword_normalizer"
                     )
             }
     )

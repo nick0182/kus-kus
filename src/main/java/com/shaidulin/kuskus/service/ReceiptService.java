@@ -4,5 +4,5 @@ import com.shaidulin.kuskus.dto.IngredientMatch;
 import reactor.core.publisher.Mono;
 
 public interface ReceiptService {
-    Mono<IngredientMatch> searchIngredients(String toMatch);
+    Mono<IngredientMatch> searchIngredients(String toSearch, String... known);
 }
