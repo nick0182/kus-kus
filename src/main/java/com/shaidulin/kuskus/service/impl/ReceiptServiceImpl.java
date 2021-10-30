@@ -1,7 +1,7 @@
 package com.shaidulin.kuskus.service.impl;
 
-import com.shaidulin.kuskus.dto.IngredientMatch;
-import com.shaidulin.kuskus.dto.IngredientValue;
+import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
+import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
 import com.shaidulin.kuskus.service.ReceiptService;
 import lombok.AllArgsConstructor;
 import org.apache.lucene.search.join.ScoreMode;

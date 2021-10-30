@@ -1,7 +1,7 @@
 package com.shaidulin.kuskus.controller;
 
-import com.shaidulin.kuskus.dto.IngredientMatch;
-import com.shaidulin.kuskus.dto.IngredientValue;
+import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
+import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
 import com.shaidulin.kuskus.service.ReceiptService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +37,7 @@ public class ReceiptControllerTest {
 
         webTestClient
                 .get()
-                .uri("/api/vi/ingredients?toSearch=капуста")
+                .uri("/api/v1/ingredients?toSearch=капуста")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(IngredientMatch.class)
@@ -54,7 +54,7 @@ public class ReceiptControllerTest {
 
         webTestClient
                 .get()
-                .uri("/api/vi/ingredients?toSearch=шампиньоны")
+                .uri("/api/v1/ingredients?toSearch=шампиньоны")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(IngredientMatch.class)
@@ -71,7 +71,7 @@ public class ReceiptControllerTest {
 
         webTestClient
                 .get()
-                .uri("/api/vi/ingredients?toSearch=шампиньоны&known=чеснок")
+                .uri("/api/v1/ingredients?toSearch=шампиньоны&known=чеснок")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(IngredientMatch.class)
@@ -88,7 +88,24 @@ public class ReceiptControllerTest {
 
         webTestClient
                 .get()
-                .uri("/api/vi/ingredients?toSearch=шампиньоны&known=чеснок,соль")
+                .uri("/api/v1/ingredients?toSearch=шампиньоны&known=чеснок&known=соль")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(IngredientMatch.class)
+                .isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("should not pass known query param to service method")
+    void test5() {
+        IngredientMatch expected = new IngredientMatch(Collections.singleton(new IngredientValue("чеснок", 15)));
+        BDDMockito
+                .given(receiptService.searchIngredients(anyString(), any()))
+                .willReturn(Mono.just(expected));
+
+        webTestClient
+                .get()
+                .uri("/api/v1/ingredients?toSearch=шампиньоны&known")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody(IngredientMatch.class)

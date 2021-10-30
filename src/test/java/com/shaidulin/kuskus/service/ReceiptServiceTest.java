@@ -1,8 +1,8 @@
 package com.shaidulin.kuskus.service;
 
 import com.shaidulin.kuskus.config.ElasticsearchConfig;
-import com.shaidulin.kuskus.dto.IngredientMatch;
-import com.shaidulin.kuskus.dto.IngredientValue;
+import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
+import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.indices.GetIndexRequest;

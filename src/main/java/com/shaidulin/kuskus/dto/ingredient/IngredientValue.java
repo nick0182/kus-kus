@@ -1,4 +1,4 @@
-package com.shaidulin.kuskus.dto;
+package com.shaidulin.kuskus.dto.ingredient;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
