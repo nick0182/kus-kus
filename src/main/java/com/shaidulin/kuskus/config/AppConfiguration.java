@@ -1,7 +1,7 @@
 package com.shaidulin.kuskus.config;
 
-import com.shaidulin.kuskus.service.ReceiptService;
-import com.shaidulin.kuskus.service.impl.ReceiptServiceImpl;
+import com.shaidulin.kuskus.service.IngredientService;
+import com.shaidulin.kuskus.service.impl.IngredientServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
@@ -10,7 +10,7 @@ import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsea
 public class AppConfiguration {
 
     @Bean
-    public ReceiptService receiptService(ReactiveElasticsearchClient client) {
-        return new ReceiptServiceImpl(client);
+    public IngredientService ingredientService(ReactiveElasticsearchClient client) {
+        return new IngredientServiceImpl(client);
     }
 }

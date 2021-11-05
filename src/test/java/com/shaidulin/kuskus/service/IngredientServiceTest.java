@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 
 @SpringBootTest(classes = ElasticsearchConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ReceiptServiceTest {
+public class IngredientServiceTest {
 
     private static final String INDEX_NAME = "receipt";
 
@@ -44,7 +44,7 @@ public class ReceiptServiceTest {
     private Resource testData;
 
     @Autowired
-    private ReceiptService receiptService;
+    private IngredientService ingredientService;
 
     @BeforeAll
     public void setupIndex() throws IOException, InterruptedException {
@@ -89,7 +89,7 @@ public class ReceiptServiceTest {
         @MethodSource("provideSource")
         void test(String toSearch, IngredientMatch expected) {
             // when
-            Mono<IngredientMatch> result = receiptService.searchIngredients(toSearch);
+            Mono<IngredientMatch> result = ingredientService.searchIngredients(toSearch);
 
             // then
             result
@@ -157,7 +157,7 @@ public class ReceiptServiceTest {
         @MethodSource("provideSource")
         void test(String toSearch, String known, IngredientMatch expected) {
             // when
-            Mono<IngredientMatch> result = receiptService.searchIngredients(toSearch, known);
+            Mono<IngredientMatch> result = ingredientService.searchIngredients(toSearch, known);
 
             // then
             result
@@ -239,7 +239,7 @@ public class ReceiptServiceTest {
         @MethodSource("provideSource")
         void test(String toSearch, String known1, String known2, IngredientMatch expected) {
             // when
-            Mono<IngredientMatch> result = receiptService.searchIngredients(toSearch, known1, known2);
+            Mono<IngredientMatch> result = ingredientService.searchIngredients(toSearch, known1, known2);
 
             // then
             result

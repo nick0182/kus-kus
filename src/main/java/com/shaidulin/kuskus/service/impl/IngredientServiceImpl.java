@@ -2,7 +2,7 @@ package com.shaidulin.kuskus.service.impl;
 
 import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
 import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
-import com.shaidulin.kuskus.service.ReceiptService;
+import com.shaidulin.kuskus.service.IngredientService;
 import lombok.AllArgsConstructor;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
@@ -29,11 +29,11 @@ import reactor.core.publisher.Mono;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static com.shaidulin.kuskus.service.impl.ReceiptServiceImpl.IngredientSourceBuilder.constructKnownSource;
-import static com.shaidulin.kuskus.service.impl.ReceiptServiceImpl.IngredientSourceBuilder.constructSearchSource;
+import static com.shaidulin.kuskus.service.impl.IngredientServiceImpl.IngredientSourceBuilder.constructKnownSource;
+import static com.shaidulin.kuskus.service.impl.IngredientServiceImpl.IngredientSourceBuilder.constructSearchSource;
 
 @AllArgsConstructor
-public class ReceiptServiceImpl implements ReceiptService {
+public class IngredientServiceImpl implements IngredientService {
 
     private final ReactiveElasticsearchClient client;
 

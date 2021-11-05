@@ -2,7 +2,7 @@ package com.shaidulin.kuskus.config;
 
 import com.shaidulin.kuskus.converter.DurationReadingConverter;
 import com.shaidulin.kuskus.converter.PortionReadingConverter;
-import com.shaidulin.kuskus.service.impl.ReceiptServiceImpl;
+import com.shaidulin.kuskus.service.impl.IngredientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ import java.net.InetSocketAddress;
 
 @Configuration
 @EnableReactiveElasticsearchRepositories(basePackages = "com.shaidulin.kuskus.repository")
-@Import({ReceiptServiceImpl.class, ElasticsearchCustomConversions.class,
+@Import({IngredientServiceImpl.class, ElasticsearchCustomConversions.class,
         DurationReadingConverter.class, PortionReadingConverter.class})
 public class ElasticsearchConfig {
 
