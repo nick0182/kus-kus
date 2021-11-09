@@ -1,4 +1,4 @@
-package com.shaidulin.kuskus.controller;
+package com.shaidulin.kuskus.controller.ingredient;
 
 import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
 import org.springframework.web.bind.annotation.GetMapping;

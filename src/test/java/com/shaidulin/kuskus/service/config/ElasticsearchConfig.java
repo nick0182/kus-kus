@@ -1,12 +1,17 @@
-package com.shaidulin.kuskus.config;
+package com.shaidulin.kuskus.service.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.shaidulin.kuskus.converter.DurationReadingConverter;
 import com.shaidulin.kuskus.converter.PortionReadingConverter;
+import com.shaidulin.kuskus.document.Portion;
 import com.shaidulin.kuskus.service.impl.IngredientServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.shaidulin.kuskus.service.impl.ReceiptServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.elasticsearch.client.ClientConfiguration;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveRestClients;
@@ -20,15 +25,18 @@ import org.springframework.data.elasticsearch.repository.config.EnableReactiveEl
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.util.List;
 
 @Configuration
 @EnableReactiveElasticsearchRepositories(basePackages = "com.shaidulin.kuskus.repository")
-@Import({IngredientServiceImpl.class, ElasticsearchCustomConversions.class,
-        DurationReadingConverter.class, PortionReadingConverter.class})
-public class ElasticsearchConfig {
-
-    @Autowired
-    private ElasticsearchCustomConversions elasticsearchCustomConversions;
+@Import({
+        IngredientServiceImpl.class,
+        ReceiptServiceImpl.class,
+        DurationReadingConverter.class,
+        PortionReadingConverter.class
+})
+class ElasticsearchConfig {
 
     @Bean(destroyMethod = "close")
     public ElasticsearchContainer container() {
@@ -43,7 +51,13 @@ public class ElasticsearchConfig {
                 .connectedTo(InetSocketAddress.createUnresolved(container().getHost(), container.getFirstMappedPort()))
                 .build();
         return ReactiveRestClients.create(clientConfiguration);
+    }
 
+    @Bean
+    ElasticsearchCustomConversions elasticsearchCustomConversions(
+            Converter<String, Duration> durationReadingConverter,
+            Converter<String, Portion> portionReadingConverter) {
+        return new ElasticsearchCustomConversions(List.of(durationReadingConverter, portionReadingConverter));
     }
 
     @Bean
@@ -52,7 +66,8 @@ public class ElasticsearchConfig {
     }
 
     @Bean
-    public ElasticsearchConverter elasticsearchConverter(SimpleElasticsearchMappingContext elasticsearchMappingContext) {
+    public ElasticsearchConverter elasticsearchConverter(SimpleElasticsearchMappingContext elasticsearchMappingContext,
+                                                         ElasticsearchCustomConversions elasticsearchCustomConversions) {
         MappingElasticsearchConverter mappingElasticsearchConverter = new MappingElasticsearchConverter(elasticsearchMappingContext);
         mappingElasticsearchConverter.setConversions(elasticsearchCustomConversions);
         return mappingElasticsearchConverter;
@@ -62,5 +77,13 @@ public class ElasticsearchConfig {
     public ReactiveElasticsearchOperations reactiveElasticsearchTemplate(
             ReactiveElasticsearchClient reactiveElasticsearchClient, ElasticsearchConverter elasticsearchConverter) {
         return new ReactiveElasticsearchTemplate(reactiveElasticsearchClient, elasticsearchConverter);
+    }
+
+    @Bean
+    ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
+        return objectMapper;
     }
 }

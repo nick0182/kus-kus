@@ -1,13 +1,15 @@
 package com.shaidulin.kuskus.controller;
 
+import com.shaidulin.kuskus.controller.ingredient.IngredientController;
 import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
 import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
 import com.shaidulin.kuskus.service.IngredientService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.BDDMockito;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -15,17 +17,14 @@ import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.*;
 
+@WebFluxTest(IngredientController.class)
 public class IngredientControllerTest {
 
+    @Autowired
     private WebTestClient webTestClient;
-    private IngredientService ingredientService;
 
-    @BeforeEach
-    void setUp() {
-        ingredientService = Mockito.mock(IngredientService.class);
-        IngredientController ingredientController = new IngredientController(ingredientService);
-        webTestClient = WebTestClient.bindToController(ingredientController).build();
-    }
+    @MockBean
+    private IngredientService ingredientService;
 
     @Test
     @DisplayName("should return no match")

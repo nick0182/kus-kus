@@ -1,18 +1,8 @@
 package com.shaidulin.kuskus.dto.ingredient;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Value;
-
 import java.util.Objects;
 
-@Value
-@NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
-@AllArgsConstructor
-public class IngredientValue implements Comparable<IngredientValue> {
-    String name;
-    int count;
+public record IngredientValue(String name, int count) implements Comparable<IngredientValue> {
 
     @Override
     public int compareTo(IngredientValue otherIngredient) {

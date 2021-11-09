@@ -1,86 +1,26 @@
 package com.shaidulin.kuskus.service;
 
-import com.shaidulin.kuskus.config.ElasticsearchConfig;
 import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
 import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.common.bytes.BytesArray;
-import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.rest.RestStatus;
-import org.junit.jupiter.api.BeforeAll;
+import com.shaidulin.kuskus.service.config.ElasticServiceTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.Resource;
-import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
-@SpringBootTest(classes = ElasticsearchConfig.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class IngredientServiceTest {
-
-    private static final String INDEX_NAME = "receipt";
-
-    private static final XContentType NDJSON = XContentType.fromMediaType("application/x-ndjson");
-
-    private static final int DOCUMENTS_COUNT = 290;
-
-    @Autowired
-    private ReactiveElasticsearchClient client;
-
-    @Value("classpath:/recipe-bulk.jsonl")
-    private Resource testData;
+public class IngredientServiceTest extends ElasticServiceTest {
 
     @Autowired
     private IngredientService ingredientService;
-
-    @BeforeAll
-    public void setupIndex() throws IOException, InterruptedException {
-        // given
-        GetIndexRequest getIndexRequest = new GetIndexRequest(INDEX_NAME);
-
-        // when
-        Mono<Boolean> result = client.indices().existsIndex(getIndexRequest);
-
-        // then
-        result
-                .as(StepVerifier::create)
-                .expectNext(true)
-                .verifyComplete();
-
-        populateIndex();
-
-        Thread.sleep(1000);
-    }
-
-    private void populateIndex() throws IOException {
-        // given
-        BulkRequest request = new BulkRequest();
-        byte[] requestBodyBytes = testData.getInputStream().readAllBytes();
-        request.add(new BytesArray(requestBodyBytes), INDEX_NAME, NDJSON);
-
-        // when
-        Mono<BulkResponse> result = client.bulk(request);
-
-        // then
-        result
-                .as(StepVerifier::create)
-                .expectNextMatches(bulkResult -> bulkResult.status().equals(RestStatus.OK)
-                        && bulkResult.getItems().length == DOCUMENTS_COUNT)
-                .verifyComplete();
-    }
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)

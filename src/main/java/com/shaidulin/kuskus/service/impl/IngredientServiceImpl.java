@@ -3,12 +3,8 @@ package com.shaidulin.kuskus.service.impl;
 import com.shaidulin.kuskus.dto.ingredient.IngredientMatch;
 import com.shaidulin.kuskus.dto.ingredient.IngredientValue;
 import com.shaidulin.kuskus.service.IngredientService;
-import lombok.AllArgsConstructor;
-import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -29,25 +25,22 @@ import reactor.core.publisher.Mono;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import static com.shaidulin.kuskus.service.impl.IngredientServiceImpl.IngredientSourceBuilder.constructKnownSource;
-import static com.shaidulin.kuskus.service.impl.IngredientServiceImpl.IngredientSourceBuilder.constructSearchSource;
+import static com.shaidulin.kuskus.service.impl.IngredientServiceImpl.IngredientAggregationBuilder.constructSearchSource;
+import static com.shaidulin.kuskus.service.util.BuilderUtils.*;
 
-@AllArgsConstructor
-public class IngredientServiceImpl implements IngredientService {
-
-    private final ReactiveElasticsearchClient client;
+public record IngredientServiceImpl(ReactiveElasticsearchClient client) implements IngredientService {
 
     @Override
     public Mono<IngredientMatch> searchIngredients(String toSearch, String... known) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder().size(0);
         if (known != null) {
-            sourceBuilder.query(constructKnownSource(known));
+            sourceBuilder.query(constructIngredientQuery(known));
         }
         sourceBuilder.aggregation(constructSearchSource(toSearch, known));
-        SearchRequest request = new SearchRequest("receipt").source(sourceBuilder);
+        SearchRequest request = new SearchRequest(INDEX_NAME).source(sourceBuilder);
 
         return client.searchForResponse(request)
-                .map(response -> IngredientSourceBuilder.resolveAggregation(response.getAggregations(), "ingredients", Nested.class))
+                .map(response -> IngredientAggregationBuilder.resolveAggregation(response.getAggregations(), "ingredients", Nested.class))
                 .map(this::createSearchResponse);
     }
 
@@ -60,14 +53,11 @@ public class IngredientServiceImpl implements IngredientService {
         );
     }
 
-    static class IngredientSourceBuilder {
+    static class IngredientAggregationBuilder {
 
         private static final String SEARCH_PLAIN = "ingredients.name.search"; // splits phrase by word
         private static final String SEARCH_2GRAM = "ingredients.name.search._2gram"; // splits phrase by 2 words
         private static final String SEARCH_3GRAM = "ingredients.name.search._3gram"; // splits phrase by 3 words
-
-        private static final String PATH = "ingredients";
-        private static final String KEYWORD = "ingredients.name.keyword";
 
         static NestedAggregationBuilder constructSearchSource(String toSearch, String... known) {
             String toMatchTrimmed = toSearch.trim();
@@ -75,17 +65,6 @@ public class IngredientServiceImpl implements IngredientService {
             FilterAggregationBuilder filterIngredientsAggregation = constructFilterAggregationBuilder(multiMatchQuery);
             TermsAggregationBuilder ingredientsListAggregation = constructTermsAggregationBuilder(known);
             return packAggregations(ingredientsListAggregation, filterIngredientsAggregation);
-        }
-
-        static BoolQueryBuilder constructKnownSource(String... known) {
-            BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-            for (String knownIngredient : known) {
-                String knownIngredientTrimmed = knownIngredient.trim();
-                boolQueryBuilder
-                        .must(QueryBuilders
-                                .nestedQuery(PATH, QueryBuilders.termQuery(KEYWORD, knownIngredientTrimmed), ScoreMode.None));
-            }
-            return boolQueryBuilder;
         }
 
         static <T extends Aggregation> Terms resolveAggregation(Aggregations parent, String name, Class<T> type) {

@@ -1,5 +1,8 @@
 package com.shaidulin.kuskus;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.shaidulin.kuskus.converter.DurationReadingConverter;
 import com.shaidulin.kuskus.converter.PortionReadingConverter;
 import com.shaidulin.kuskus.document.Portion;
@@ -20,19 +23,27 @@ public class KusKusApplication {
     }
 
     @Bean
-    public ElasticsearchCustomConversions elasticsearchCustomConversions(
+    ElasticsearchCustomConversions elasticsearchCustomConversions(
             Converter<String, Duration> durationReadingConverter,
             Converter<String, Portion> portionReadingConverter) {
         return new ElasticsearchCustomConversions(List.of(durationReadingConverter, portionReadingConverter));
     }
 
     @Bean
-    public Converter<String, Duration> durationReadingConverter() {
+    Converter<String, Duration> durationReadingConverter() {
         return new DurationReadingConverter();
     }
 
     @Bean
-    public Converter<String, Portion> portionReadingConverter() {
+    Converter<String, Portion> portionReadingConverter() {
         return new PortionReadingConverter();
+    }
+
+    @Bean
+    ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false);
+        return objectMapper;
     }
 }
