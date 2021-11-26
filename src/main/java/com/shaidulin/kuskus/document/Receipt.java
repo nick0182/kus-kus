@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Document(indexName = "receipt")
 @DynamicMapping(value = DynamicMappingValue.False)
-@Setting(settingPath = "index_settings.json")
+@Setting(settingPath = "index_settings.json", refreshInterval = "-1")
 @Data
 @AllArgsConstructor
 public class Receipt {

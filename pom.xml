@@ -15,7 +15,7 @@
     <description>The easiest way to find the best receipt for you!</description>
 
     <properties>
-        <java.version>16</java.version>
+        <java.version>17</java.version>
         <testcontainers.elastic.version>1.16.2</testcontainers.elastic.version>
     </properties>
 

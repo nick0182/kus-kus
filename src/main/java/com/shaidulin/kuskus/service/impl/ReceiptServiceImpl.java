@@ -1,38 +1,51 @@
 package com.shaidulin.kuskus.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shaidulin.kuskus.dto.Page;
+import com.shaidulin.kuskus.dto.SortType;
 import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationMatch;
 import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationValue;
 import com.shaidulin.kuskus.service.ReceiptService;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static com.shaidulin.kuskus.service.util.BuilderUtils.INDEX_NAME;
-import static com.shaidulin.kuskus.service.util.BuilderUtils.constructIngredientQuery;
+import static com.shaidulin.kuskus.service.util.BuilderUtils.*;
 
-public record ReceiptServiceImpl(ReactiveElasticsearchClient client, ObjectMapper objectMapper) implements ReceiptService {
+public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
+                                 ObjectMapper objectMapper) implements ReceiptService {
 
-    private static final int RECEIPTS_COUNT = 10;
+    private static final int INDEX_MAX_RESULT_WINDOW = 10000;
 
     @Override
     @SneakyThrows
-    public Mono<ReceiptPresentationMatch> getReceiptRepresentations(String... ingredients) {
+    public Mono<ReceiptPresentationMatch> getReceiptRepresentations(SortType sortType, Page page, String... ingredients) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
-                .size(RECEIPTS_COUNT)
+                .from(page.getCurrent())
+                .size(page.getSize())
                 .fetchSource(new String[]{"query-param", "name", "time-to-cook", "portions"}, null)
-                .query(constructIngredientQuery(ingredients));
+                .query(constructIngredientQuery(ingredients))
+                .sort(constructSortScript(sortType));
 
         SearchRequest request = new SearchRequest(INDEX_NAME).source(sourceBuilder);
 
-        return client.search(request)
-                .map(hit -> convertJson(hit.getSourceAsString()))
-                .collect(Collectors.toList())
-                .map(ReceiptPresentationMatch::new);
+        return client.searchForResponse(request)
+                .map(SearchResponse::getHits)
+                .map(hits -> new ReceiptPresentationMatch(getTotalHits(hits),
+                        Arrays.stream(hits.getHits())
+                                .map(hit -> convertJson(hit.getSourceAsString()))
+                                .collect(Collectors.toList())));
+    }
+
+    private int getTotalHits(SearchHits responseHits) {
+        return Math.min((int) responseHits.getTotalHits().value, INDEX_MAX_RESULT_WINDOW);
     }
 
     @SneakyThrows

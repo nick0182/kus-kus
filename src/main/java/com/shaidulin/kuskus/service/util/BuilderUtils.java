@@ -1,8 +1,15 @@
 package com.shaidulin.kuskus.service.util;
 
+import com.shaidulin.kuskus.dto.SortType;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.search.sort.ScriptSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
+
+import java.util.Collections;
 
 public record BuilderUtils() {
 
@@ -19,5 +26,17 @@ public record BuilderUtils() {
                             .nestedQuery(PATH, QueryBuilders.termQuery(KEYWORD, knownIngredientTrimmed), ScoreMode.None));
         }
         return boolQueryBuilder;
+    }
+
+    public static ScriptSortBuilder constructSortScript(SortType sortType) {
+        return SortBuilders.scriptSort(new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG,
+                        mapSortTypeToScriptCode(sortType), Collections.emptyMap()),
+                ScriptSortBuilder.ScriptSortType.NUMBER);
+    }
+
+    private static String mapSortTypeToScriptCode(SortType sortType) {
+        return switch (sortType) {
+            case ACCURACY -> "params['_source']['ingredients'].size()";
+        };
     }
 }
