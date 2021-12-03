@@ -9,7 +9,6 @@ import com.shaidulin.kuskus.service.ReceiptService;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
 import reactor.core.publisher.Mono;
@@ -38,14 +37,14 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
 
         return client.searchForResponse(request)
                 .map(SearchResponse::getHits)
-                .map(hits -> new ReceiptPresentationMatch(getTotalHits(hits),
+                .map(hits -> new ReceiptPresentationMatch(hasMoreReceipts((int) hits.getTotalHits().value, page),
                         Arrays.stream(hits.getHits())
                                 .map(hit -> convertJson(hit.getSourceAsString()))
                                 .collect(Collectors.toList())));
     }
 
-    private int getTotalHits(SearchHits responseHits) {
-        return Math.min((int) responseHits.getTotalHits().value, INDEX_MAX_RESULT_WINDOW);
+    private boolean hasMoreReceipts(int total, Page page) {
+        return Math.min(total, INDEX_MAX_RESULT_WINDOW) > (page.getCurrent() + 1) * page.getSize();
     }
 
     @SneakyThrows

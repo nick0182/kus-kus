@@ -28,10 +28,10 @@ public class ReceiptServiceTest extends ElasticServiceTest {
     class ReceiptRepresentationTest {
         @ParameterizedTest(name = "{index} get receipt representations")
         @MethodSource("provideSource")
-        void test(ReceiptPresentationMatch expected, String[] ingredients) {
+        void test(int currentPage, ReceiptPresentationMatch expected, String[] ingredients) {
             // when
             Mono<ReceiptPresentationMatch> result = receiptService.getReceiptRepresentations(
-                    SortType.ACCURACY, new Page(0, 10), ingredients);
+                    SortType.ACCURACY, new Page(currentPage, 1), ingredients);
 
             // then
             result
@@ -43,37 +43,60 @@ public class ReceiptServiceTest extends ElasticServiceTest {
         private Stream<Arguments> provideSource() {
             return Stream.of(
                     Arguments.of(
-                            expectedRPM(1, expectedRPV(4688, "Бутерброды \"Объедение\"", Duration.ofMinutes(30), 0)),
+                            0,
+                            expectedRPM(false, expectedRPV(4688, "Бутерброды \"Объедение\"", Duration.ofMinutes(30), 0)),
                             new String[]{"перец черный", "батон"}
                     ),
                     Arguments.of(
-                            expectedRPM(1, expectedRPV(4952, "Рулет из фарша с яйцами", Duration.ofMinutes(75), 4)),
+                            1,
+                            expectedRPM(false),
+                            new String[]{"перец черный", "батон"}
+                    ),
+                    Arguments.of(
+                            0,
+                            expectedRPM(false, expectedRPV(4952, "Рулет из фарша с яйцами", Duration.ofMinutes(75), 4)),
                             new String[]{"соль", "хлеб"}
                     ),
                     Arguments.of(
-                            expectedRPM(2,
-                                    expectedRPV(4853, "Салат из свеклы", Duration.ofMinutes(10), 4),
-                                    expectedRPV(4778, "Салат \"Огни Парижа\"", null, 0)
-                            ),
+                            1,
+                            expectedRPM(false),
+                            new String[]{"соль", "хлеб"}
+                    ),
+                    Arguments.of(
+                            0,
+                            expectedRPM(true, expectedRPV(4853, "Салат из свеклы", Duration.ofMinutes(10), 4)),
                             new String[]{"свекла"}
                     ),
-
                     Arguments.of(
-                            expectedRPM(2,
-                                    expectedRPV(4937, "Курочка в аэрогриле", Duration.ofMinutes(1), 0),
-                                    expectedRPV(4857, "Курочка \"По-королевски\"", null, 0)
-                            ),
+                            1,
+                            expectedRPM(false, expectedRPV(4778, "Салат \"Огни Парижа\"", null, 0)),
+                            new String[]{"свекла"}
+                    ),
+                    Arguments.of(
+                            0,
+                            expectedRPM(true, expectedRPV(4937, "Курочка в аэрогриле", Duration.ofMinutes(1), 0)),
                             new String[]{"масло растительное", "соль", "курица"}
                     ),
                     Arguments.of(
-                            expectedRPM(0),
+                            1,
+                            expectedRPM(false, expectedRPV(4857, "Курочка \"По-королевски\"", null, 0)),
+                            new String[]{"масло растительное", "соль", "курица"}
+                    ),
+                    Arguments.of(
+                            0,
+                            expectedRPM(false),
+                            new String[]{"банан", "молоко"}
+                    ),
+                    Arguments.of(
+                            1,
+                            expectedRPM(false),
                             new String[]{"банан", "молоко"}
                     )
             );
         }
 
-        private ReceiptPresentationMatch expectedRPM(int total, ReceiptPresentationValue... values) {
-            return new ReceiptPresentationMatch(total, Arrays.asList(values));
+        private ReceiptPresentationMatch expectedRPM(boolean hasMore, ReceiptPresentationValue... values) {
+            return new ReceiptPresentationMatch(hasMore, Arrays.asList(values));
         }
 
         private ReceiptPresentationValue expectedRPV(int queryParam, String name, Duration cookTime, int portions) {

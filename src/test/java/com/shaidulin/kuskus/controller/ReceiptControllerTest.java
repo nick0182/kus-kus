@@ -83,7 +83,7 @@ public class ReceiptControllerTest {
     @Test
     @DisplayName("should return no match")
     void test3() {
-        ReceiptPresentationMatch expected = new ReceiptPresentationMatch(0, Collections.emptyList());
+        ReceiptPresentationMatch expected = new ReceiptPresentationMatch(false, Collections.emptyList());
         BDDMockito
                 .given(receiptService.getReceiptRepresentations(SortType.ACCURACY, new Page(0, 10), "капуста"))
                 .willReturn(Mono.just(expected));
@@ -101,7 +101,7 @@ public class ReceiptControllerTest {
     @DisplayName("should return a match")
     void test4() {
         ReceiptPresentationMatch expected =
-                new ReceiptPresentationMatch(1, Collections.singletonList(
+                new ReceiptPresentationMatch(false, Collections.singletonList(
                         new ReceiptPresentationValue(45, "Оладьи", Duration.ofMinutes(30), 2)));
         BDDMockito
                 .given(receiptService.getReceiptRepresentations(SortType.ACCURACY, new Page(0, 10), "молоко", "мука"))
