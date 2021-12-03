@@ -1,10 +1,7 @@
 package com.shaidulin.kuskus.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shaidulin.kuskus.dto.Page;
-import com.shaidulin.kuskus.dto.SortType;
-import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationMatch;
-import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationValue;
+import com.shaidulin.kuskus.dto.receipt.*;
 import com.shaidulin.kuskus.service.ReceiptService;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.search.SearchRequest;
@@ -37,14 +34,15 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
 
         return client.searchForResponse(request)
                 .map(SearchResponse::getHits)
-                .map(hits -> new ReceiptPresentationMatch(hasMoreReceipts((int) hits.getTotalHits().value, page),
+                .map(hits -> new ReceiptPresentationMatch(createMeta((int) hits.getTotalHits().value, page, sortType),
                         Arrays.stream(hits.getHits())
                                 .map(hit -> convertJson(hit.getSourceAsString()))
                                 .collect(Collectors.toList())));
     }
 
-    private boolean hasMoreReceipts(int total, Page page) {
-        return Math.min(total, INDEX_MAX_RESULT_WINDOW) > (page.getCurrent() + 1) * page.getSize();
+    private Meta createMeta(int total, Page page, SortType sortType) {
+        return new Meta(sortType, page.getCurrent() / page.getSize(),
+                Math.min(total, INDEX_MAX_RESULT_WINDOW) > page.getCurrent() + page.getSize());
     }
 
     @SneakyThrows

@@ -1,7 +1,5 @@
 package com.shaidulin.kuskus.dto.receipt;
 
-import com.shaidulin.kuskus.dto.Page;
-import com.shaidulin.kuskus.dto.SortType;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;

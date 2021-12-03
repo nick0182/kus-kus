@@ -1,6 +1,6 @@
 package com.shaidulin.kuskus.service.util;
 
-import com.shaidulin.kuskus.dto.SortType;
+import com.shaidulin.kuskus.dto.receipt.SortType;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;

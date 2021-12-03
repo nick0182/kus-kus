@@ -1,4 +1,4 @@
-package com.shaidulin.kuskus.dto;
+package com.shaidulin.kuskus.dto.receipt;
 
 import lombok.*;
 

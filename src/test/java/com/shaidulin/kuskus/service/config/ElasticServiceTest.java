@@ -80,6 +80,6 @@ public abstract class ElasticServiceTest {
 
     @SneakyThrows
     private void waitRequestFinish() {
-        Thread.sleep(1000);
+        Thread.sleep(2000);
     }
 }

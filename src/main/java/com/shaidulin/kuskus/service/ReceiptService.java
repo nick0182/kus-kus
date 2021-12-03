@@ -1,7 +1,7 @@
 package com.shaidulin.kuskus.service;
 
-import com.shaidulin.kuskus.dto.Page;
-import com.shaidulin.kuskus.dto.SortType;
+import com.shaidulin.kuskus.dto.receipt.Page;
+import com.shaidulin.kuskus.dto.receipt.SortType;
 import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationMatch;
 import reactor.core.publisher.Mono;
 

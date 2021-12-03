@@ -1,9 +1,6 @@
 package com.shaidulin.kuskus.service;
 
-import com.shaidulin.kuskus.dto.Page;
-import com.shaidulin.kuskus.dto.SortType;
-import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationMatch;
-import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationValue;
+import com.shaidulin.kuskus.dto.receipt.*;
 import com.shaidulin.kuskus.service.config.ElasticServiceTest;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;
@@ -44,59 +41,65 @@ public class ReceiptServiceTest extends ElasticServiceTest {
             return Stream.of(
                     Arguments.of(
                             0,
-                            expectedRPM(false, expectedRPV(4688, "Бутерброды \"Объедение\"", Duration.ofMinutes(30), 0)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 0, false),
+                                    expectedRPV(4688, "Бутерброды \"Объедение\"", Duration.ofMinutes(30), 0)),
                             new String[]{"перец черный", "батон"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(false),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)),
                             new String[]{"перец черный", "батон"}
                     ),
                     Arguments.of(
                             0,
-                            expectedRPM(false, expectedRPV(4952, "Рулет из фарша с яйцами", Duration.ofMinutes(75), 4)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 0, false),
+                                    expectedRPV(4952, "Рулет из фарша с яйцами", Duration.ofMinutes(75), 4)),
                             new String[]{"соль", "хлеб"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(false),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)),
                             new String[]{"соль", "хлеб"}
                     ),
                     Arguments.of(
                             0,
-                            expectedRPM(true, expectedRPV(4853, "Салат из свеклы", Duration.ofMinutes(10), 4)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 0, true),
+                                    expectedRPV(4853, "Салат из свеклы", Duration.ofMinutes(10), 4)),
                             new String[]{"свекла"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(false, expectedRPV(4778, "Салат \"Огни Парижа\"", null, 0)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false),
+                                    expectedRPV(4778, "Салат \"Огни Парижа\"", null, 0)),
                             new String[]{"свекла"}
                     ),
                     Arguments.of(
                             0,
-                            expectedRPM(true, expectedRPV(4937, "Курочка в аэрогриле", Duration.ofMinutes(1), 0)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 0, true),
+                                    expectedRPV(4937, "Курочка в аэрогриле", Duration.ofMinutes(1), 0)),
                             new String[]{"масло растительное", "соль", "курица"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(false, expectedRPV(4857, "Курочка \"По-королевски\"", null, 0)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false),
+                                    expectedRPV(4857, "Курочка \"По-королевски\"", null, 0)),
                             new String[]{"масло растительное", "соль", "курица"}
                     ),
                     Arguments.of(
                             0,
-                            expectedRPM(false),
+                            expectedRPM(new Meta(SortType.ACCURACY, 0, false)),
                             new String[]{"банан", "молоко"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(false),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)),
                             new String[]{"банан", "молоко"}
                     )
             );
         }
 
-        private ReceiptPresentationMatch expectedRPM(boolean hasMore, ReceiptPresentationValue... values) {
-            return new ReceiptPresentationMatch(hasMore, Arrays.asList(values));
+        private ReceiptPresentationMatch expectedRPM(Meta meta, ReceiptPresentationValue... values) {
+            return new ReceiptPresentationMatch(meta, Arrays.asList(values));
         }
 
         private ReceiptPresentationValue expectedRPV(int queryParam, String name, Duration cookTime, int portions) {

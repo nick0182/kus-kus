@@ -1,10 +1,7 @@
 package com.shaidulin.kuskus.controller;
 
 import com.shaidulin.kuskus.controller.receipt.ReceiptController;
-import com.shaidulin.kuskus.dto.Page;
-import com.shaidulin.kuskus.dto.SortType;
-import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationMatch;
-import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationValue;
+import com.shaidulin.kuskus.dto.receipt.*;
 import com.shaidulin.kuskus.service.ReceiptService;
 import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.DisplayName;
@@ -83,7 +80,7 @@ public class ReceiptControllerTest {
     @Test
     @DisplayName("should return no match")
     void test3() {
-        ReceiptPresentationMatch expected = new ReceiptPresentationMatch(false, Collections.emptyList());
+        ReceiptPresentationMatch expected = new ReceiptPresentationMatch(new Meta(SortType.ACCURACY, 0, false), Collections.emptyList());
         BDDMockito
                 .given(receiptService.getReceiptRepresentations(SortType.ACCURACY, new Page(0, 10), "капуста"))
                 .willReturn(Mono.just(expected));
@@ -101,7 +98,7 @@ public class ReceiptControllerTest {
     @DisplayName("should return a match")
     void test4() {
         ReceiptPresentationMatch expected =
-                new ReceiptPresentationMatch(false, Collections.singletonList(
+                new ReceiptPresentationMatch(new Meta(SortType.ACCURACY, 0, false), Collections.singletonList(
                         new ReceiptPresentationValue(45, "Оладьи", Duration.ofMinutes(30), 2)));
         BDDMockito
                 .given(receiptService.getReceiptRepresentations(SortType.ACCURACY, new Page(0, 10), "молоко", "мука"))
