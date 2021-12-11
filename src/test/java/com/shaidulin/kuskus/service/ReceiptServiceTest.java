@@ -1,18 +1,24 @@
 package com.shaidulin.kuskus.service;
 
+import com.shaidulin.kuskus.document.Portion;
 import com.shaidulin.kuskus.dto.receipt.*;
 import com.shaidulin.kuskus.service.config.ElasticServiceTest;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class ReceiptServiceTest extends ElasticServiceTest {
@@ -22,7 +28,7 @@ public class ReceiptServiceTest extends ElasticServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class ReceiptRepresentationTest {
+    class ReceiptPresentationTest {
         @ParameterizedTest(name = "{index} get receipt representations")
         @MethodSource("provideSource")
         void test(int currentPage, ReceiptPresentationMatch expected, String[] ingredients) {
@@ -107,4 +113,47 @@ public class ReceiptServiceTest extends ElasticServiceTest {
         }
     }
 
+    @Nested
+    class ReceiptByIdTest {
+
+        @Test
+        @DisplayName("Should yield RequestStatusException 404 when receipt by id not exists")
+        void test1() {
+            // expect
+            receiptService.getReceipt(4928)
+                    .as(StepVerifier::create)
+                    .expectErrorMatches(error -> error instanceof ResponseStatusException
+                            && ((ResponseStatusException) error).getStatus().equals(HttpStatus.NOT_FOUND))
+                    .verify();
+        }
+
+        @Test
+        @DisplayName("Should yield receipt when receipt by id exists")
+        void test2() {
+            // given
+            List<Ingredient> ingredients = List.of(
+                    new Ingredient("Ветчина", 300, "г"),
+                    new Ingredient("Помидор", 4, "шт"),
+                    new Ingredient("Брынза", 200, "г"),
+                    new Ingredient("Грибы", 1, "бан."),
+                    new Ingredient("Сметана", null, null),
+                    new Ingredient("Майонез", null, null)
+            );
+            List<Nutrition> nutritions = List.of(
+                    new Nutrition(Portion.ALL, 1477.0, 87.1, 114.6, 23.4),
+                    new Nutrition(Portion.HUNDRED_GRAMS, 125.2, 7.4, 9.7, 2.0)
+            );
+            ReceiptValue expected = new ReceiptValue(4927, "Салат с брынзой и грибами",
+                    Duration.ofMinutes(20), 0, ingredients, nutritions);
+
+            // when
+            Mono<ReceiptValue> result = receiptService.getReceipt(4927);
+
+            // then
+            result
+                    .as(StepVerifier::create)
+                    .expectNext(expected)
+                    .verifyComplete();
+        }
+    }
 }

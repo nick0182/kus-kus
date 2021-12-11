@@ -24,7 +24,7 @@ public class IngredientServiceTest extends ElasticServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class SearchFirstIngredient {
+    class SearchFirstIngredientTest {
         @ParameterizedTest(name = "{index} search \"{0}\"")
         @MethodSource("provideSource")
         void test(String toSearch, IngredientMatch expected) {
@@ -92,7 +92,7 @@ public class IngredientServiceTest extends ElasticServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class SearchSecondIngredient {
+    class SearchSecondIngredientTest {
         @ParameterizedTest(name = "{index} search \"{0}\" with known \"{1}\"")
         @MethodSource("provideSource")
         void test(String toSearch, String known, IngredientMatch expected) {
@@ -174,7 +174,7 @@ public class IngredientServiceTest extends ElasticServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    class SearchThirdIngredient {
+    class SearchThirdIngredientTest {
         @ParameterizedTest(name = "{index} search \"{0}\" with known \"{1}\" and \"{2}\"")
         @MethodSource("provideSource")
         void test(String toSearch, String known1, String known2, IngredientMatch expected) {

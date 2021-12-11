@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class Receipt {
 
-    @Field(name = "query-param", type = FieldType.Integer, index = false, coerce = false, docValues = false)
+    @Field(name = "query-param", type = FieldType.Integer, coerce = false, docValues = false)
     private final int queryParam;
 
     @Field(type = FieldType.Text, analyzer = "russian", norms = false)

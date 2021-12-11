@@ -6,8 +6,11 @@ import com.shaidulin.kuskus.service.ReceiptService;
 import lombok.SneakyThrows;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.data.elasticsearch.client.reactive.ReactiveElasticsearchClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
@@ -36,8 +39,23 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
                 .map(SearchResponse::getHits)
                 .map(hits -> new ReceiptPresentationMatch(createMeta((int) hits.getTotalHits().value, page, sortType),
                         Arrays.stream(hits.getHits())
-                                .map(hit -> convertJson(hit.getSourceAsString()))
+                                .map(hit -> convertJson(hit.getSourceAsString(), ReceiptPresentationValue.class))
                                 .collect(Collectors.toList())));
+    }
+
+    @Override
+    public Mono<ReceiptValue> getReceipt(int id) {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
+                .query(QueryBuilders.termQuery("query-param", id))
+                .fetchSource(null, new String[]{"description", "steps-todo", "categories"});
+
+        SearchRequest request = new SearchRequest(INDEX_NAME).source(sourceBuilder);
+
+        return client
+                .search(request)
+                .next()
+                .map(hit -> convertJson(hit.getSourceAsString(), ReceiptValue.class))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     private Meta createMeta(int total, Page page, SortType sortType) {
@@ -46,7 +64,7 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
     }
 
     @SneakyThrows
-    private ReceiptPresentationValue convertJson(String source) {
-        return objectMapper.readValue(source, ReceiptPresentationValue.class);
+    private <T> T convertJson(String source, Class<T> clazz) {
+        return objectMapper.readValue(source, clazz);
     }
 }
