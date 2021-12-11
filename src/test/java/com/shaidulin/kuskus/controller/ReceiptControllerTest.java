@@ -1,6 +1,7 @@
 package com.shaidulin.kuskus.controller;
 
 import com.shaidulin.kuskus.controller.receipt.ReceiptController;
+import com.shaidulin.kuskus.document.Portion;
 import com.shaidulin.kuskus.dto.receipt.*;
 import com.shaidulin.kuskus.service.ReceiptService;
 import org.hamcrest.core.StringContains;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.Collections;
+import java.util.List;
 
 @WebFluxTest(ReceiptController.class)
 public class ReceiptControllerTest {
@@ -140,8 +142,11 @@ public class ReceiptControllerTest {
         @Test
         @DisplayName("should return receipt when found")
         void test2() {
+            List<Ingredient> ingredients = Collections.singletonList(new Ingredient("Соль", 1, "упак."));
+            List<Nutrition> nutritions = Collections.singletonList(
+                    new Nutrition(Portion.HUNDRED_GRAMS, 16.2, 4.4, 8.6, 12.0));
             ReceiptValue expected = new ReceiptValue(221, "Селедка под шубой",
-                    Duration.ofHours(1), 2, null, null);
+                    Duration.ofHours(1), 2, ingredients, nutritions);
 
             BDDMockito
                     .given(receiptService.getReceipt(221))
