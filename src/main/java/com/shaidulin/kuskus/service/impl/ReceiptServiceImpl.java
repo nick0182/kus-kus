@@ -47,7 +47,7 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
     public Mono<ReceiptValue> getReceipt(int id) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(QueryBuilders.termQuery("query-param", id))
-                .fetchSource(null, new String[]{"description", "steps-todo", "categories"});
+                .fetchSource(null, new String[]{"description", "categories"});
 
         SearchRequest request = new SearchRequest(INDEX_NAME).source(sourceBuilder);
 

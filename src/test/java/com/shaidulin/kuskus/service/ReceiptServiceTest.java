@@ -143,8 +143,15 @@ public class ReceiptServiceTest extends ElasticServiceTest {
                     new Nutrition(Portion.ALL, 1477.0, 87.1, 114.6, 23.4),
                     new Nutrition(Portion.HUNDRED_GRAMS, 125.2, 7.4, 9.7, 2.0)
             );
+            List<Step> steps = List.of(
+                    new Step(1, "Режем брынзу и ветчину кубиками."),
+                    new Step(2, "Помидоры режем и откладываем на сито, чтобы стек сок."),
+                    new Step(3, "Режем грибочки (я покупаю сразу резаные)."),
+                    new Step(4, "Майонез и сметану смешиваем в равных пропорциях."),
+                    new Step(5, "Заправляем салатик.")
+            );
             ReceiptValue expected = new ReceiptValue(4927, "Салат с брынзой и грибами",
-                    Duration.ofMinutes(20), 0, ingredients, nutritions);
+                    Duration.ofMinutes(20), 0, ingredients, nutritions, steps);
 
             // when
             Mono<ReceiptValue> result = receiptService.getReceipt(4927);

@@ -145,8 +145,9 @@ public class ReceiptControllerTest {
             List<Ingredient> ingredients = Collections.singletonList(new Ingredient("Соль", 1, "упак."));
             List<Nutrition> nutritions = Collections.singletonList(
                     new Nutrition(Portion.HUNDRED_GRAMS, 16.2, 4.4, 8.6, 12.0));
+            List<Step> steps = List.of(new Step(1, "шаг 1"), new Step(2, "шаг 2"));
             ReceiptValue expected = new ReceiptValue(221, "Селедка под шубой",
-                    Duration.ofHours(1), 2, ingredients, nutritions);
+                    Duration.ofHours(1), 2, ingredients, nutritions, steps);
 
             BDDMockito
                     .given(receiptService.getReceipt(221))
