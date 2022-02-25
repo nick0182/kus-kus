@@ -25,7 +25,7 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
 
     @Override
     @SneakyThrows
-    public Mono<ReceiptPresentationMatch> getReceiptRepresentations(SortType sortType, Page page, String... ingredients) {
+    public Mono<ReceiptPresentationMatch> getReceiptPresentations(SortType sortType, Page page, String... ingredients) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .from(page.getCurrent())
                 .size(page.getSize())

@@ -7,7 +7,7 @@ import com.shaidulin.kuskus.dto.receipt.ReceiptPresentationMatch;
 import reactor.core.publisher.Mono;
 
 public interface ReceiptService {
-    Mono<ReceiptPresentationMatch> getReceiptRepresentations(SortType sortType, Page page, String... ingredients);
+    Mono<ReceiptPresentationMatch> getReceiptPresentations(SortType sortType, Page page, String... ingredients);
 
     Mono<ReceiptValue> getReceipt(int id);
 }

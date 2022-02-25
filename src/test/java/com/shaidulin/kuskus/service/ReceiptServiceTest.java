@@ -29,11 +29,11 @@ public class ReceiptServiceTest extends ElasticServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class ReceiptPresentationTest {
-        @ParameterizedTest(name = "{index} get receipt representations")
+        @ParameterizedTest(name = "{index} get receipt presentations")
         @MethodSource("provideSource")
         void test(int currentPage, ReceiptPresentationMatch expected, String[] ingredients) {
             // when
-            Mono<ReceiptPresentationMatch> result = receiptService.getReceiptRepresentations(
+            Mono<ReceiptPresentationMatch> result = receiptService.getReceiptPresentations(
                     SortType.ACCURACY, new Page(currentPage, 1), ingredients);
 
             // then

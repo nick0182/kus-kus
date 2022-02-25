@@ -89,7 +89,7 @@ public class ReceiptControllerTest {
         void test3() {
             ReceiptPresentationMatch expected = new ReceiptPresentationMatch(new Meta(SortType.ACCURACY, 0, false), Collections.emptyList());
             BDDMockito
-                    .given(receiptService.getReceiptRepresentations(SortType.ACCURACY, new Page(0, 10), "капуста"))
+                    .given(receiptService.getReceiptPresentations(SortType.ACCURACY, new Page(0, 10), "капуста"))
                     .willReturn(Mono.just(expected));
 
             webTestClient
@@ -108,7 +108,7 @@ public class ReceiptControllerTest {
                     new ReceiptPresentationMatch(new Meta(SortType.ACCURACY, 0, false), Collections.singletonList(
                             new ReceiptPresentationValue(45, "Оладьи", Duration.ofMinutes(30), 2)));
             BDDMockito
-                    .given(receiptService.getReceiptRepresentations(SortType.ACCURACY, new Page(0, 10), "молоко", "мука"))
+                    .given(receiptService.getReceiptPresentations(SortType.ACCURACY, new Page(0, 10), "молоко", "мука"))
                     .willReturn(Mono.just(expected));
 
             webTestClient

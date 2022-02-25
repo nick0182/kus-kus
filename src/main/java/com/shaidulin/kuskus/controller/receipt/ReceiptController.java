@@ -16,7 +16,7 @@ public class ReceiptController implements ReceiptOperations {
 
     @Override
     public Mono<ReceiptPresentationMatch> getReceiptPresentations(ReceiptPresentationRequest request) {
-        return receiptService.getReceiptRepresentations(request.getSortType(),
+        return receiptService.getReceiptPresentations(request.getSortType(),
                 request.getPage(), request.getIngredients().toArray(String[]::new));
     }
 

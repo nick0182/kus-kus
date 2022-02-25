@@ -39,6 +39,8 @@ import java.util.List;
 })
 class ElasticsearchConfig {
 
+    // To move to elasticsearch 8 see https://github.com/testcontainers/testcontainers-java/issues/5048
+    // https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-stack-security.html
     @Bean(destroyMethod = "close")
     public ElasticsearchContainer container() {
         ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.0");
