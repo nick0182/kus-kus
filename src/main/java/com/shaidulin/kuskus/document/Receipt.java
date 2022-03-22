@@ -8,8 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-@Document(indexName = "receipt")
-@DynamicMapping(value = DynamicMappingValue.False)
+@Document(indexName = "receipt", dynamic = Dynamic.FALSE)
 @Setting(settingPath = "index_settings.json", refreshInterval = "-1")
 @Data
 @AllArgsConstructor

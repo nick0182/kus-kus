@@ -43,7 +43,7 @@ class ElasticsearchConfig {
     // https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-stack-security.html
     @Bean(destroyMethod = "close")
     public ElasticsearchContainer container() {
-        ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.0");
+        ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.17.1");
         container.start();
         return container;
     }
