@@ -29,6 +29,9 @@ public class Receipt {
     @Field(name = "time-to-cook", type = FieldType.Keyword, ignoreAbove = 20, index = false)
     private final Duration cookTime;
 
+    @Field(name = "time-to-cook-min", type = FieldType.Integer, coerce = false)
+    private final Integer cookTimeMin;
+
     @Field(type = FieldType.Integer, coerce = false)
     private final int portions;
 

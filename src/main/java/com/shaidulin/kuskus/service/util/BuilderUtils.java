@@ -6,8 +6,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
-import org.elasticsearch.search.sort.ScriptSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.*;
 
 import java.util.Collections;
 
@@ -28,15 +27,12 @@ public record BuilderUtils() {
         return boolQueryBuilder;
     }
 
-    public static ScriptSortBuilder constructSortScript(SortType sortType) {
-        return SortBuilders.scriptSort(new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG,
-                        mapSortTypeToScriptCode(sortType), Collections.emptyMap()),
-                ScriptSortBuilder.ScriptSortType.NUMBER);
-    }
-
-    private static String mapSortTypeToScriptCode(SortType sortType) {
+    public static SortBuilder<?> constructSort(SortType sortType) {
         return switch (sortType) {
-            case ACCURACY -> "params['_source']['ingredients'].size()";
+            case ACCURACY -> SortBuilders.scriptSort(new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG,
+                            "params['_source']['ingredients'].size()", Collections.emptyMap()),
+                    ScriptSortBuilder.ScriptSortType.NUMBER);
+            case COOK_TIME -> SortBuilders.fieldSort("time-to-cook-min");
         };
     }
 }

@@ -31,10 +31,10 @@ public class ReceiptServiceTest extends ElasticServiceTest {
     class ReceiptPresentationTest {
         @ParameterizedTest(name = "{index} get receipt presentations")
         @MethodSource("provideSource")
-        void test(int currentPage, ReceiptPresentationMatch expected, String[] ingredients) {
+        void test(int currentPage, ReceiptPresentationMatch expected, SortType sortType, String[] ingredients) {
             // when
             Mono<ReceiptPresentationMatch> result = receiptService.getReceiptPresentations(
-                    SortType.ACCURACY, new Page(currentPage, 1), ingredients);
+                    sortType, new Page(currentPage, 1), ingredients);
 
             // then
             result
@@ -48,59 +48,74 @@ public class ReceiptServiceTest extends ElasticServiceTest {
                     Arguments.of(
                             0,
                             expectedRPM(new Meta(SortType.ACCURACY, 0, false),
-                                    expectedRPV(4688, "Бутерброды \"Объедение\"", Duration.ofMinutes(30), 0)),
+                                    expectedRPV(4688, "Бутерброды \"Объедение\"", Duration.ofMinutes(30), 0)), SortType.ACCURACY,
                             new String[]{"перец черный", "батон"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)), SortType.ACCURACY,
                             new String[]{"перец черный", "батон"}
                     ),
                     Arguments.of(
                             0,
                             expectedRPM(new Meta(SortType.ACCURACY, 0, false),
-                                    expectedRPV(4952, "Рулет из фарша с яйцами", Duration.ofMinutes(75), 4)),
+                                    expectedRPV(4952, "Рулет из фарша с яйцами", Duration.ofMinutes(75), 4)), SortType.ACCURACY,
                             new String[]{"соль", "хлеб"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)), SortType.ACCURACY,
                             new String[]{"соль", "хлеб"}
                     ),
                     Arguments.of(
                             0,
                             expectedRPM(new Meta(SortType.ACCURACY, 0, true),
-                                    expectedRPV(4853, "Салат из свеклы", Duration.ofMinutes(10), 4)),
+                                    expectedRPV(4853, "Салат из свеклы", Duration.ofMinutes(10), 4)), SortType.ACCURACY,
                             new String[]{"свекла"}
                     ),
                     Arguments.of(
                             1,
                             expectedRPM(new Meta(SortType.ACCURACY, 1, false),
-                                    expectedRPV(4778, "Салат \"Огни Парижа\"", null, 0)),
+                                    expectedRPV(4778, "Салат \"Огни Парижа\"", null, 0)), SortType.ACCURACY,
                             new String[]{"свекла"}
                     ),
                     Arguments.of(
                             0,
                             expectedRPM(new Meta(SortType.ACCURACY, 0, true),
-                                    expectedRPV(4937, "Курочка в аэрогриле", Duration.ofMinutes(1), 0)),
+                                    expectedRPV(4937, "Курочка в аэрогриле", Duration.ofMinutes(1), 0)), SortType.ACCURACY,
                             new String[]{"масло растительное", "соль", "курица"}
                     ),
                     Arguments.of(
                             1,
                             expectedRPM(new Meta(SortType.ACCURACY, 1, false),
-                                    expectedRPV(4857, "Курочка \"По-королевски\"", null, 0)),
+                                    expectedRPV(4857, "Курочка \"По-королевски\"", null, 0)), SortType.ACCURACY,
                             new String[]{"масло растительное", "соль", "курица"}
                     ),
                     Arguments.of(
                             0,
-                            expectedRPM(new Meta(SortType.ACCURACY, 0, false)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 0, false)), SortType.ACCURACY,
                             new String[]{"банан", "молоко"}
                     ),
                     Arguments.of(
                             1,
-                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)),
+                            expectedRPM(new Meta(SortType.ACCURACY, 1, false)), SortType.ACCURACY,
                             new String[]{"банан", "молоко"}
-                    )
+                    ),
+                    Arguments.of(
+                            0,
+                            expectedRPM(new Meta(SortType.COOK_TIME, 0, true),
+                                    expectedRPV(4942, "Гречневая запеканка", Duration.ofMinutes(30), 10)), SortType.COOK_TIME,
+                            new String[]{"сахар", "творог"}),
+                    Arguments.of(
+                            1,
+                            expectedRPM(new Meta(SortType.COOK_TIME, 1, true),
+                                    expectedRPV(4796, "Вареники паровые", Duration.ofMinutes(40), 0)), SortType.COOK_TIME,
+                            new String[]{"сахар", "творог"}),
+                    Arguments.of(
+                            2,
+                            expectedRPM(new Meta(SortType.COOK_TIME, 2, true),
+                                    expectedRPV(4959, "Манник творожный", Duration.ofMinutes(50), 4)), SortType.COOK_TIME,
+                            new String[]{"сахар", "творог"})
             );
         }
 

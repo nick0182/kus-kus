@@ -31,7 +31,7 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
                 .size(page.getSize())
                 .fetchSource(new String[]{"query-param", "name", "time-to-cook", "portions"}, null)
                 .query(constructIngredientQuery(ingredients))
-                .sort(constructSortScript(sortType));
+                .sort(constructSort(sortType));
 
         SearchRequest request = new SearchRequest(INDEX_NAME).source(sourceBuilder);
 
@@ -47,7 +47,7 @@ public record ReceiptServiceImpl(ReactiveElasticsearchClient client,
     public Mono<ReceiptValue> getReceipt(int id) {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder()
                 .query(QueryBuilders.termQuery("query-param", id))
-                .fetchSource(null, new String[]{"description", "categories"});
+                .fetchSource(null, new String[]{"description", "categories", "time-to-cook-min"});
 
         SearchRequest request = new SearchRequest(INDEX_NAME).source(sourceBuilder);
 

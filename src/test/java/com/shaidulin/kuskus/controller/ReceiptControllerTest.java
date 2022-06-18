@@ -105,16 +105,16 @@ public class ReceiptControllerTest {
         @DisplayName("should return a match")
         void test4() {
             ReceiptPresentationMatch expected =
-                    new ReceiptPresentationMatch(new Meta(SortType.ACCURACY, 0, false), Collections.singletonList(
+                    new ReceiptPresentationMatch(new Meta(SortType.COOK_TIME, 0, false), Collections.singletonList(
                             new ReceiptPresentationValue(45, "Оладьи", Duration.ofMinutes(30), 2)));
             BDDMockito
-                    .given(receiptService.getReceiptPresentations(SortType.ACCURACY, new Page(0, 10), "молоко", "мука"))
+                    .given(receiptService.getReceiptPresentations(SortType.COOK_TIME, new Page(0, 10), "молоко", "мука"))
                     .willReturn(Mono.just(expected));
 
             webTestClient
                     .get()
                     .uri("/api/v1/receipts/presentations?ingredients=молоко&ingredients=мука&" +
-                            "sortType=ACCURACY&page.current=0&page.size=10")
+                            "sortType=COOK_TIME&page.current=0&page.size=10")
                     .exchange()
                     .expectStatus().isOk()
                     .expectBody(ReceiptPresentationMatch.class)
