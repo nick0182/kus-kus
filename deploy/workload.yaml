@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
         - name: kus-kus
-          image: blink182u2/kus-kus:0.0.1
+          image: 848500148350.dkr.ecr.me-south-1.amazonaws.com/kus-kus:0.0.1
           env:
             - name: SPRING_ELASTICSEARCH_URIS
               value: https://vpc-kus-kus-search-g5p77gomzoxh4k6dfond2ib754.me-south-1.es.amazonaws.com:443
